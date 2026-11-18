@@ -1,0 +1,10 @@
+# Deliberate, documented approvals for scripts/audit-sanitize.sh.
+# One entry per line. Every entry needs a reason on the line above it.
+#
+# Format: the exact string that would otherwise be flagged.
+#
+# Documentation values (RFC 5737 addresses, example.com and the other RFC 2606 names) and
+# the standards hosts this index links to are approved by pattern inside the script.
+
+# The owner's own public portfolio site, linked from README.md.
+ryanvalera.com

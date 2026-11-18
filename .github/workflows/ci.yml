@@ -1,0 +1,93 @@
+name: gates
+
+# Runs on every pushed branch and tag, on pull requests, and on demand.
+# CI is the server-side repeat of the local gate. It runs AFTER a push has landed: a
+# failure here does not undo the push. It means the pushed content is remediated before
+# anything else happens to the repository.
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  secrets:
+    name: gitleaks (full history and checked-out files)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0   # full history: a local hook can be bypassed, this cannot
+          # For a pull request, check out the branch's own commit. By default GitHub
+          # tests a pull request on a merge commit it creates, which the next step
+          # would refuse. Bracket syntax, because the audit reads dotted names as hosts.
+          ref: ${{ github['event']['pull_request']['head']['sha'] || github['sha'] }}
+      - name: refuse a shallow checkout
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse --is-shallow-repository)" = "false"
+          echo "commits reachable from all refs: $(git rev-list --all --count)"
+      # Gitleaks' history scan does not examine what a merge commit itself introduces,
+      # such as a conflict resolution. The history is therefore kept linear.
+      - name: refuse merge commits
+        run: |
+          set -euo pipefail
+          merges="$(git rev-list --all --merges --count)"
+          echo "merge commits reachable from all refs: $merges"
+          test "$merges" -eq 0
+      - name: install gitleaks (checksum verified)
+        run: |
+          set -euo pipefail
+          VER=8.21.2
+          SUM=5bc41815076e6ed6ef8fbecc9d9b75bcae31f39029ceb55da08086315316e3ba
+          curl -sSLf -o "$RUNNER_TEMP/gitleaks.tar.gz" \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${VER}/gitleaks_${VER}_linux_x64.tar.gz"
+          echo "${SUM}  $RUNNER_TEMP/gitleaks.tar.gz" | sha256sum -c -
+          sudo tar xzf "$RUNNER_TEMP/gitleaks.tar.gz" -C /usr/local/bin gitleaks
+      - name: scan full history
+        run: |
+          set -euo pipefail
+          gitleaks git . --config .gitleaks.toml --no-banner --redact 2>&1 \
+            | tee "$RUNNER_TEMP/gitleaks.log"
+          # Proof that commits were actually scanned. The pattern accepts either word order.
+          # Gitleaks counts only commits that change text, so this number is at most the
+          # number of reachable commits printed above; empty and deletion-only commits,
+          # and commits that only add a binary, are not counted.
+          grep -Eiq '([0-9]+ commits? scanned|scanned [0-9]+ commits?)' "$RUNNER_TEMP/gitleaks.log"
+      # The files as they stand at this commit, whatever history produced them. This
+      # scan reads the working tree only, not .git.
+      - name: scan checked-out files
+        run: gitleaks dir . --config .gitleaks.toml --no-banner --redact
+
+  sanitize:
+    name: sensitive-content audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: negative control
+        run: ./scripts/negative-control.sh
+      # The deny-list is git-ignored by design and cannot exist here. Deny-listed terms
+      # are checked only by the local hook; this run covers every other class.
+      - name: audit tracked files (without the deny-list)
+        run: ./scripts/audit-sanitize.sh --all --no-denylist
+
+  integrity:
+    name: paths, ignore rules, scripts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: path and type gate (checked-out tree)
+        run: ./scripts/check-paths.sh
+      - name: path and type gate (every commit, every ref)
+        run: ./scripts/check-paths.sh --history
+      - name: ignore rules and path gate control
+        run: ./scripts/ignore-control.sh
+      - name: shellcheck
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq && sudo apt-get install -y -qq shellcheck
+          shellcheck -e SC2013 -e SC2016 scripts/*.sh

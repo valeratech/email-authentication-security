@@ -1,0 +1,75 @@
+# Local commit gate. A failing hook BLOCKS the commit. That is the point.
+# Install once:  pre-commit install
+# Run manually:  pre-commit run --all-files
+#
+# This is the third of four layers (source discipline -> audit -> hooks -> CI).
+# It is bypassable with --no-verify, which is why CI re-runs the checks server-side over
+# the full history.
+#
+# pre-commit stashes unstaged changes before it runs, so the hooks from other
+# repositories see the staged content. The three local hooks do not rely on that: each
+# reads the index itself, and each runs on every commit, whatever the commit touches.
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      # Review rounds are committed exactly as written, so the two fixers leave them alone.
+      - id: trailing-whitespace
+        exclude: ^reviews/BP
+      - id: end-of-file-fixer
+        exclude: ^reviews/BP
+      - id: check-merge-conflict
+      - id: mixed-line-ending
+        args: [--fix=lf]
+      - id: detect-private-key
+      - id: check-added-large-files
+        args: [--maxkb=512]
+      - id: check-yaml
+      - id: check-executables-have-shebangs
+      - id: check-shebang-scripts-are-executable
+
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.21.2
+    hooks:
+      - id: gitleaks
+        args: [--config, .gitleaks.toml]
+
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.10.0.1
+    hooks:
+      - id: shellcheck
+        args: [-e, SC2013, -e, SC2016]   # intentional: deliberate word-splitting, literal grep patterns
+
+  - repo: local
+    hooks:
+      # The path-and-type gate. Reads the index and compares it with a fixed manifest.
+      # It consults no ignore rule, so nothing a .gitignore says can widen it.
+      - id: check-paths
+        name: path and type gate
+        entry: scripts/check-paths.sh
+        language: script
+        pass_filenames: false
+        always_run: true
+
+      # Proves the ignore rules and the path gate in scratch repositories.
+      - id: ignore-control
+        name: ignore rules and path gate control
+        entry: scripts/ignore-control.sh
+        language: script
+        pass_filenames: false
+        always_run: true
+
+      # Project-specific sensitive-content audit. Catches what gitleaks cannot:
+      # employer identifiers, production addressing, unapproved domains, license keys.
+      # Requires the local, git-ignored deny-list; without it the hook fails.
+      #
+      # Runs on every commit, over the staged content of every file in the index. There
+      # is no file-type filter: the audit itself decides what is text, and binary content
+      # is a finding. An empty commit is audited like any other.
+      - id: audit-sanitize
+        name: sensitive-content audit
+        entry: scripts/audit-sanitize.sh --staged
+        language: script
+        pass_filenames: false
+        always_run: true

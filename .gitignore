@@ -1,0 +1,55 @@
+# email-authentication-security: index hub
+#
+# Deny by default. This repository holds an index, its review record and its own gates:
+# a small, closed set of files. Everything else is ignored, so a file does not need a
+# recognisable name or extension to be kept out.
+#
+# This is a preventive measure, not a security boundary. `git add -f` overrides it, and
+# so does a .gitignore placed inside an approved directory. What enforces the file set is
+# scripts/check-paths.sh, which reads the index and consults no ignore rule at all.
+
+# 1. Ignore everything at the top level
+/*
+
+# 2. Re-include the approved top-level files
+!/.gitignore
+!/.gitattributes
+!/.gitleaks.toml
+!/.pre-commit-config.yaml
+!/.audit-allow
+!/README.md
+!/SECURITY.md
+
+# 3. A directory is never an approved file, whatever it is called
+/.gitignore/
+/.gitattributes/
+/.gitleaks.toml/
+/.pre-commit-config.yaml/
+/.audit-allow/
+/README.md/
+/SECURITY.md/
+
+# 4. Re-include each approved directory, then only its approved file type.
+#    The last line of each group ignores every subdirectory, including one named like
+#    an approved file.
+!/.github/
+/.github/*
+!/.github/workflows/
+/.github/workflows/*
+!/.github/workflows/*.yml
+/.github/workflows/*/
+
+!/docs/
+/docs/*
+!/docs/*.md
+/docs/*/
+
+!/reviews/
+/reviews/*
+!/reviews/*.md
+/reviews/*/
+
+!/scripts/
+/scripts/*
+!/scripts/*.sh
+/scripts/*/

@@ -1,0 +1,13 @@
+# Files Git detects as text are stored and checked out with LF line endings.
+# Files Git detects as binary are left untouched.
+* text=auto eol=lf
+
+# Explicitly binary, should one ever be approved: no line-ending conversion, no text diff.
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.webp binary
+*.pdf  binary
+*.gz   binary
+*.zip  binary
