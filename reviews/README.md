@@ -13,9 +13,9 @@ approval.
   disagreeing with evidence for the Reviewer to rule on.
 - The **owner** (the "Operator" in the rounds) decides every open item and authorizes
   every action.
-- Each round is committed **as written**. A correction is a new file, never an edit to an
-  earlier round, so the record shows what was proposed, what was challenged, and why it
-  changed.
+- Each design round is committed **as written**. A correction is a new file, never an
+  edit to an earlier round, so the record shows what was proposed, what was challenged,
+  and why it changed.
 
 ## Naming
 
@@ -38,10 +38,13 @@ name, directly inside this folder.
 | [BP001-R04-reviewer.md](BP001-R04-reviewer.md) | Reviewer | Ruling on R04 | REVISE, limited to B05. B01 closed. Three audit corrections required (B05a to B05c) |
 | [BP001-R05-builder.md](BP001-R05-builder.md) | Builder | Audit corrections: failed searches, binary content, IPv6 | Reviewed in R05 |
 | [BP001-R05-reviewer.md](BP001-R05-reviewer.md) | Reviewer | Ruling on R05 | ACCEPT. B05 closed; no design blockers |
-| [BP001-R06-builder.md](BP001-R06-builder.md) | Builder | CI: refuse merge commits, scan the checked-out files | Awaiting ruling |
+| [BP001-R06-builder.md](BP001-R06-builder.md) | Builder | CI: refuse merge commits, scan the checked-out files | Ruled in R06 |
+| [BP001-R06-reviewer.md](BP001-R06-reviewer.md) | Reviewer | Ruling on R06 | ACCEPT. Merge refusal and checked-out file scan accepted; count reconciliation accepted for Gitleaks 8.21.2 |
 
 ## Notes on the record
 
+- **This record covers the design of the scaffold, R02 to R06.** The operational records
+  that followed (qualification and publication) are kept privately by the owner.
 - **R01** was a draft in conversation and was never submitted. R02 is the first round.
 - **BP001-R02-reviewer.md** is the Reviewer's own plain-Markdown reissue of the R02
   review. Its findings and disposition are unchanged; its closing note says what the
