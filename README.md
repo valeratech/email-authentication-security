@@ -15,6 +15,7 @@ or in any project it lists.
 | Project | Scope | Environment | Status |
 |---|---|---|---|
 | [secure-mail-platform](https://github.com/valeratech/secure-mail-platform) | A mail platform built by hand: Postfix, Dovecot, rspamd, MariaDB virtual users, Roundcube, BIND and a private CA, with SPF, DKIM and DMARC verified by cases that must fail as well as cases that must pass. Thirteen sections, each proposed, reviewed and accepted before the next begins | An isolated VMware Workstation lab on reserved `.test` names. No registered domain, and no mail to or from the Internet | **In progress.** Section 1 (architecture and scope): accepted. Section 2 (VMware environment and base OS): in progress. Sections 3 to 13: no state recorded yet. Read from the project's Status table at commit [`ab45a87`](https://github.com/valeratech/secure-mail-platform/blob/ab45a87108cc29321d6ab2440d1001cb5016e6d4/README.md#status) |
+| google-workspace-administration (repository not yet public, so not linked) | A Google Workspace administration lab, re-run end to end on the current Admin console: directory, Gmail, Calendar and Drive settings, endpoints, 2SV, SSO and Secure LDAP, Vault and audit. Its mail section takes a real domain from parked to SPF, DKIM and DMARC aligned, and back. Nine sections, each proposed, reviewed and accepted before the next begins | A Google Workspace Business Plus trial on my own domain, ryanvalera.com, with fictional test users and synthetic data. The domain carries real mail only during a controlled window, then returns to a parked state | **Planned.** Section 1 (scope and safety): accepted by the project's Reviewer on 2026-11-19. The repository is not created yet, so there is no Status table or commit to cite |
 
 The Scope column is what a project sets out to build. The Status column is what has been
 built and accepted so far.
@@ -22,7 +23,8 @@ built and accepted so far.
 **Status is copied, never inferred.** Each status here is transcribed from the project's
 own Status table at the commit named beside it. This index never states more progress
 than the project's own record does, and a project being public does not mean it is
-finished.
+finished. A planned project whose repository does not exist yet cites its accepted
+scope review instead, and is linked only once its repository is public.
 
 This index is the primary listing for `secure-mail-platform`. The project is also listed
 in [linux-infrastructure-portfolio](https://github.com/valeratech/linux-infrastructure-portfolio),

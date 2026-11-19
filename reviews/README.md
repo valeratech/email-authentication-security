@@ -40,6 +40,8 @@ name, directly inside this folder.
 | [BP001-R05-reviewer.md](BP001-R05-reviewer.md) | Reviewer | Ruling on R05 | ACCEPT. B05 closed; no design blockers |
 | [BP001-R06-builder.md](BP001-R06-builder.md) | Builder | CI: refuse merge commits, scan the checked-out files | Ruled in R06 |
 | [BP001-R06-reviewer.md](BP001-R06-reviewer.md) | Reviewer | Ruling on R06 | ACCEPT. Merge refusal and checked-out file scan accepted; count reconciliation accepted for Gitleaks 8.21.2 |
+| [BP002-R01-builder.md](BP002-R01-builder.md) | Builder | List google-workspace-administration as planned | Ruled in R01 |
+| [BP002-R01-reviewer.md](BP002-R01-reviewer.md) | Reviewer | Ruling on BP-002 R01 | ACCEPT. Index row and status-rule sentence accepted; both rounds recorded with the change |
 
 ## Notes on the record
 
